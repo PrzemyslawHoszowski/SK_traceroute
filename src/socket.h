@@ -9,6 +9,6 @@
 
 #include <arpa/inet.h>
 
-int get_socket(){
-    return socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-}
+int get_socket();
+void wait_for_packet(int socket);
+void get_data();

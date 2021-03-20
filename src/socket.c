@@ -5,3 +5,11 @@
 #include "socket.h"
 
 
+int get_socket(){
+    return socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+}
+
+void wait_for_packet(int socket){
+    //todo
+    return;
+}
