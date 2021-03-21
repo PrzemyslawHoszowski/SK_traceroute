@@ -8,7 +8,15 @@
 #endif //TRACE_SOCKET_H
 
 #include <arpa/inet.h>
+#include <netinet/ip_icmp.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define WAITING_TIME_S 1
+#define WAITING_TIME_MS 0
+
 
 int get_socket();
-void wait_for_packet(int socket);
+void set_timer(struct timeval *tv);
+void send_packet(struct ip *ip, int socket);
 void get_data();
