@@ -19,4 +19,3 @@
 int get_socket();
 void set_timer(struct timeval *tv);
 void send_packet(struct ip *ip, int socket);
-void get_data();

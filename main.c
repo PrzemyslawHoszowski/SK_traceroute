@@ -5,13 +5,18 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
 #include "src/socket.h"
 #include "src/packet.h"
 
 int main(int args, char **argv) {
-    if (args < 1) {
-        printf("Host IPv4 address is required.");
+    if (args <= 1) {
+        printf("Wymagany jest adres IP docelowego hosta.");
         return 1;
+    }
+    if (check_ip(argv[1]) == 0){
+        printf("Podano błędny adres ip.");
+        return 4;
     }
     uint32_t dsc_addres = inet_addr(argv[1]);
     printf("traceroute to %s\n", argv[1]);
@@ -24,26 +29,39 @@ int main(int args, char **argv) {
 
     char send_buffer[SEND_BUFFER_SIZE];
     struct ip *ip = &send_buffer;
-    uint8_t buffer[IP_MAXPACKET];
+    uint8_t buffer[500];
     struct sockaddr_in sender;
     socklen_t sender_len = sizeof(sender);
     int packet_len;
     fd_set descriptors;
-    FD_ZERO (&descriptors);
-    FD_SET(socket, &descriptors);
     struct timeval tv;
+    in_addr_t senders[3];
 
-
+    clock_t start;
+    clock_t sum;
     pid_t pid = getpid();
     int packet_id = 0;
-    for (int ttl = 1; ttl <= TTL_limit - 20; ttl++) {
-        printf("\n %i:", ttl);
-        for (int i = 0; i < 3; i++) {
-            packet_id = prep_packet(ip, ttl, dsc_addres, pid);
-            send_packet(ip, socket);
-        }
+    int reached_target = 0;
+    for (int ttl = 1; ttl <= TTL_limit && reached_target==0; ttl++) {
+        setbuf(stdout, 0);
+        FD_ZERO (&descriptors);
+        FD_SET(socket, &descriptors);
         set_timer(&tv);
         int counter = 0;
+        for(int i=0; i<3;i++) senders[i] = 0;
+
+        if(ttl < 10)
+            printf("\n %i:  ", ttl);
+        else
+            printf("\n %i: ", ttl);
+
+        start = clock();
+        printf("Start, %i\n", start);
+        for (int i = 0; i < 3; i++) {
+            packet_id = prep_packet(ip, ttl, dsc_addres, pid);
+            send_packet(&send_buffer, socket);
+        }
+
         while (1) {
             packet_len = recvfrom(
                     socket,
@@ -54,27 +72,34 @@ int main(int args, char **argv) {
                     &sender_len);
 
             if (packet_len > 0) {
-                struct ip *ip_rec = (struct ip*) buffer;
-                struct icmp *icmp = buffer + 4 * ip->ip_hl;
-                if(check_if_valid(pid, packet_id, buffer) == 1){
-                    print_ip(&sender);
-                    printf(" ");
+                int option = check_if_valid(pid, packet_id, buffer);
+                if(option > 0){
+                    sum += clock() - start;
+                    printf("CZAS %i\n", sum);
+                    for (int i=0; i<3 && senders[i] != sender.sin_addr.s_addr; i++){
+                        if(senders[i] != sender.sin_addr.s_addr){
+                            senders[i] = sender.sin_addr.s_addr;
+                            break;
+                        }
+                    }
                     counter++;
-                    if((sender.sin_addr.s_addr) == dsc_addres)
+                    if(option == 2) reached_target = 1;
                     if(counter>2) break;
                 }
             }
+            else if(tv.tv_sec == 0 && tv.tv_usec == 0)
+                break;
             else {
-                int ready = select(socket + 1, &descriptors, NULL, NULL, &tv);
-                if(tv.tv_sec == 0 && tv.tv_usec == 0){
-                    for(;counter <=2; counter++) printf(" * ");
-                    break;
+                if(0 > select(socket + 1, &descriptors, NULL, NULL, &tv)){
+                    printf("Wystąpił błąd podczas oczekiwania na pakiet.");
+                    return 5;
                 }
             }
-            struct ip *ip_header = (struct ip *) buffer;
-            struct icmp *icmp_header = buffer + 4 * ip_header->ip_hl;
-
         }
+        for (int i=0; i<3 && senders[i] != 0; i++) print_ip(senders[i]);
+        if(counter == 3) printf("%.3f ms", ((double) (sum))/3/CLOCKS_PER_SEC*1000);
+        else if(counter > 0) printf("???");
+        else printf("*");
     }
     putchar('\n');
     close(socket);
