@@ -19,3 +19,5 @@ int64_t millis(); // https://stackoverflow.com/questions/3557221/how-do-i-measur
 void clear_buffer(void *buff, int n);
 void print_ip(in_addr_t addr);
 int check_ip(char *ip);
+u_int16_t compute_icmp_checksum (const void *buff, int length);
+void print_as_bytes (unsigned char* buff, ssize_t length);

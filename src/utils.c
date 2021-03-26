@@ -1,5 +1,5 @@
 //
-// Created by Przemysław Hoszowski on 26/03/2021.
+// Created by Przemysław Hoszowski 314379 on 26/03/2021.
 //
 
 #include "utils.h"
@@ -53,7 +53,7 @@ int check_ip(char* ip){
         int number = 0;
         while(*ip != 0) {
             if ('0' <= *ip && *ip <= '9') {
-                if (*ip == '0' && number == 0) return 0;
+                if (*ip == '0' && number == 0 && *(ip+1) != '.') return 0;
                 number = number * 10 + (*ip - '0');
             }
             else if (*ip == '.') {

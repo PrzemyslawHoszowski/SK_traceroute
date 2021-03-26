@@ -5,7 +5,7 @@
 #include "packet.h"
 int check_if_valid(pid_t pid, int id, char *buffer){ // split into two cases
     struct ip* packet = (struct ip*) buffer;
-    struct icmp* icmp1 = buffer + (packet->ip_hl) * 4;
+    struct icmp* icmp1 = (struct icmp*) (buffer + (packet->ip_hl) * 4);
 
     /// if ECHO_REQUEST came to the target
     if(icmp1->icmp_type == ECHO_REPLAY) {
@@ -16,7 +16,7 @@ int check_if_valid(pid_t pid, int id, char *buffer){ // split into two cases
 
     else if(icmp1->icmp_type == TTL_EXCEEDED) {
         struct ip *packet_inner = (struct ip *) (buffer + (packet->ip_hl) * 4 + 8);
-        struct icmp *icmp = buffer + (packet->ip_hl) * 4 + (packet_inner->ip_hl) * 4 + 8;
+        struct icmp *icmp = (struct icmp*) (buffer + (packet->ip_hl) * 4 + (packet_inner->ip_hl) * 4 + 8);
 
         uint16_t icd_id = icmp->icmp_hun.ih_idseq.icd_id;
         uint16_t icd_seq = icmp->icmp_hun.ih_idseq.icd_seq;
@@ -35,7 +35,7 @@ int prep_packet(struct ip *ip, int8_t ttl, uint32_t dsc_address, pid_t pid){
     static unsigned short packet_id = 0;
 
     // fill icmp part
-    struct icmp *icmp = (struct icmp *)(ip + 1);
+    struct icmp *icmp = (struct icmp*)(ip + 1);
     clear_buffer(ip, SEND_BUFFER_SIZE);
     icmp->icmp_type = ECHO_REQUEST;
     icmp->icmp_code = 0;

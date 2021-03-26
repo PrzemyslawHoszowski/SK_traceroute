@@ -1,13 +1,13 @@
 //
 // Created by Przemysław Hoszowski 314379 on 19/03/2021.
 //
+// https://github.com/PrzemyslawHoszowski/SK_traceroute.git
 
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include "src/socket.h"
 #include "src/packet.h"
-#include "src/utils.h"
 
 
 int main(int args, char **argv) {
@@ -29,8 +29,8 @@ int main(int args, char **argv) {
     }
 
     char send_buffer[SEND_BUFFER_SIZE];
-    struct ip *ip = &send_buffer;
-    uint8_t buffer[500];
+    struct ip *ip = (struct ip*) &send_buffer;
+    char buffer[500];
     struct sockaddr_in sender;
     socklen_t sender_len = sizeof(sender);
     int packet_len;
@@ -62,7 +62,7 @@ int main(int args, char **argv) {
         start = millis();
         for (int i = 0; i < 3; i++) {
             packet_id = prep_packet(ip, ttl, dsc_addres, pid);
-            send_packet(&send_buffer, socket);
+            send_packet((struct ip*) ip, socket);
         }
 
         while (1) {

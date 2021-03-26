@@ -8,7 +8,7 @@ int get_socket(){
     return socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 }
 
-void send_packet(struct ip *ip, int socket) {
+void send_packet(struct ip* ip, int socket) {
     struct sockaddr_in dest_info;
     int enable;
     setsockopt(socket, IPPROTO_IP, IP_HDRINCL, &enable, sizeof(enable));

@@ -12,6 +12,7 @@
 #define TTL_EXCEEDED 11
 #define ECHO_REQUEST 8
 #define ECHO_REPLAY 0
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -19,7 +20,6 @@
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 #include <stdlib.h>
-#include "socket.h"
 #include "utils.h"
 
 int check_if_valid(pid_t pid, int id, char *buffer);

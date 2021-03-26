@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/select.h>
+#include <netinet/ip.h>
 
 #define WAITING_TIME_S 1
 #define WAITING_TIME_MS 0
@@ -19,4 +20,4 @@
 
 int get_socket();
 void set_timer(struct timeval *tv);
-void send_packet(struct ip *ip, int socket);
+void send_packet(struct ip* ip, int socket);
