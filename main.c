@@ -1,13 +1,14 @@
 //
-// Created by Przemysław Hoszowski on 19/03/2021.
+// Created by Przemysław Hoszowski 314379 on 19/03/2021.
 //
 
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <time.h>
 #include "src/socket.h"
 #include "src/packet.h"
+#include "src/utils.h"
+
 
 int main(int args, char **argv) {
     if (args <= 1) {
@@ -24,7 +25,7 @@ int main(int args, char **argv) {
     int socket = get_socket();
     if (socket == 0) {
         printf("Unable to get socket.");
-        return 1;
+        return 6;
     }
 
     char send_buffer[SEND_BUFFER_SIZE];
@@ -33,21 +34,24 @@ int main(int args, char **argv) {
     struct sockaddr_in sender;
     socklen_t sender_len = sizeof(sender);
     int packet_len;
-    fd_set descriptors;
-    struct timeval tv;
-    in_addr_t senders[3];
-
-    clock_t start;
-    clock_t sum;
     pid_t pid = getpid();
     int packet_id = 0;
     int reached_target = 0;
+    fd_set descriptors;
+    struct timeval tv;
+
+    in_addr_t senders[3];
+    long long start;
+    double sum=0;
+    setbuf(stdout, 0);
+
     for (int ttl = 1; ttl <= TTL_limit && reached_target==0; ttl++) {
-        setbuf(stdout, 0);
+        // clearing variables before bigger ttl
         FD_ZERO (&descriptors);
         FD_SET(socket, &descriptors);
         set_timer(&tv);
         int counter = 0;
+        sum = 0;
         for(int i=0; i<3;i++) senders[i] = 0;
 
         if(ttl < 10)
@@ -55,8 +59,7 @@ int main(int args, char **argv) {
         else
             printf("\n %i: ", ttl);
 
-        start = clock();
-        printf("Start, %i\n", start);
+        start = millis();
         for (int i = 0; i < 3; i++) {
             packet_id = prep_packet(ip, ttl, dsc_addres, pid);
             send_packet(&send_buffer, socket);
@@ -74,8 +77,7 @@ int main(int args, char **argv) {
             if (packet_len > 0) {
                 int option = check_if_valid(pid, packet_id, buffer);
                 if(option > 0){
-                    sum += clock() - start;
-                    printf("CZAS %i\n", sum);
+                    sum += millis() - start;
                     for (int i=0; i<3 && senders[i] != sender.sin_addr.s_addr; i++){
                         if(senders[i] != sender.sin_addr.s_addr){
                             senders[i] = sender.sin_addr.s_addr;
@@ -97,7 +99,7 @@ int main(int args, char **argv) {
             }
         }
         for (int i=0; i<3 && senders[i] != 0; i++) print_ip(senders[i]);
-        if(counter == 3) printf("%.3f ms", ((double) (sum))/3/CLOCKS_PER_SEC*1000);
+        if(counter == 3) printf("%.3f ms", sum/3000000);
         else if(counter > 0) printf("???");
         else printf("*");
     }

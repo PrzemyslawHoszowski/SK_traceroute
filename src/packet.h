@@ -1,5 +1,5 @@
 //
-// Created by Przemysław Hoszowski on 19/03/2021.
+// Created by Przemysław Hoszowski 314379 on 19/03/2021.
 //
 
 
@@ -18,13 +18,9 @@
 #include <arpa/inet.h>
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
-#include <assert.h>
-#include <memory.h>
 #include <stdlib.h>
 #include "socket.h"
+#include "utils.h"
 
 int check_if_valid(pid_t pid, int id, char *buffer);
 int prep_packet(struct ip *packet, int8_t ttl, uint32_t dsc_address, pid_t pid);
-void clear_buffer(void *buff, int n);
-void print_ip(in_addr_t addr);
-int check_ip(char *ip);

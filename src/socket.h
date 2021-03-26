@@ -1,5 +1,5 @@
 //
-// Created by Przemysław Hoszowski on 19/03/2021.
+// Created by Przemysław Hoszowski 314379 on 19/03/2021.
 //
 
 #ifndef TRACE_SOCKET_H
@@ -11,6 +11,7 @@
 #include <netinet/ip_icmp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/select.h>
 
 #define WAITING_TIME_S 1
 #define WAITING_TIME_MS 0
