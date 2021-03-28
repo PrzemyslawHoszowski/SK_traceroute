@@ -1,7 +1,7 @@
 //
 // Created by Przemysław Hoszowski 314379 on 19/03/2021.
 //
-// https://github.com/PrzemyslawHoszowski/SK_traceroute.git
+// lhttps://github.com/PrzemyslawHoszowski/SK_traceroute.git
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -12,11 +12,11 @@
 
 int main(int args, char **argv) {
     if (args <= 1) {
-        printf("Wymagany jest adres IP docelowego hosta.\n");
+        printf("Wymagany jest adres IP docelowego hosta.");
         return 1;
     }
     if (check_ip(argv[1]) == 0){
-        printf("Podano błędny adres ip.\n");
+        printf("Podano błędny adres ip.");
         return 4;
     }
     uint32_t dsc_addres = inet_addr(argv[1]);
@@ -24,7 +24,7 @@ int main(int args, char **argv) {
 
     int socket = get_socket();
     if (socket == 0) {
-        printf("Unable to get socket.\n");
+        printf("Unable to get socket.");
         return 6;
     }
 
@@ -93,7 +93,7 @@ int main(int args, char **argv) {
                 break;
             else {
                 if(0 > select(socket + 1, &descriptors, NULL, NULL, &tv)){
-                    printf("Wystąpił błąd podczas oczekiwania na pakiet.\n");
+                    printf("Wystąpił błąd podczas oczekiwania na pakiet.");
                     return 5;
                 }
             }
